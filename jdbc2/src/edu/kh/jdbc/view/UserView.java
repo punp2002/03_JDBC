@@ -1,5 +1,7 @@
 package edu.kh.jdbc.view;
 
+import java.util.InputMismatchException;
+import java.util.List;
 import java.util.Scanner;
 
 import edu.kh.jdbc.dto.User;
@@ -39,7 +41,7 @@ public class UserView {
 	
 	/** User 관리 프로그램 메인 메뉴
 	 */
-	/*public void mainMenu() {
+	public void mainMenu() {
 		
 		int input = 0;
 		
@@ -66,10 +68,10 @@ public class UserView {
 				case 2: selectAll(); break;
 				case 3: selectName(); break;
 				case 4: selectUser(); break;
-				case 5: deleteUser(); break;
-				case 6: updateName(); break;
-				case 7: insertUser2(); break;
-				case 8: multiInsertUser(); break;
+				case 5: /*deleteUser();*/ break;
+				case 6: /*updateName();*/ break;
+				case 7: /*insertUser2();*/ break;
+				case 8: /*multiInsertUser(); */break;
 				
 				case 0 : System.out.println("\n[프로그램 종료]\n"); break;
 				default: System.out.println("\n[메뉴 번호만 입력하세요]\n");
@@ -91,15 +93,130 @@ public class UserView {
 			
 		}while(input != 0);
 		
-	} // mainMenu() 종료   */
-	
-	
-	
-	
-	
-	
-	
-	
+
+		
+	} // mainMenu() 종료   
 	
 
+
+	/**
+	 * 1. User 등록 관련 View
+	 * @throws Exception 
+	 */
+	private void insertUser() throws Exception {
+		
+		System.out.println("\n=== 1. User 등록===\n");
+		
+		System.out.print("ID : ");
+		String userId = sc.next();
+		
+		System.out.print("PW : ");
+		String userPw = sc.next();
+		
+		System.out.print("Name : ");
+		String userName = sc.next();
+		
+		// 입력받은 값 3개를 한번에 묶어서 전달할 수 있도록 
+		// User DTO 객체를 생성한 후 필드에 값을 세팅
+		
+		User user = new User();
+		
+		// setter 이용
+		user.setUserId(userId);
+		user.setUserPW(userPw);
+		user.setUserName(userName);
+		
+		// 서비스 호출(INSERT) 후 결과 반환(int, 결과 행의 개수)받기
+		int result = service.insertUser(user);
+		
+		// 반환된 결과에 따라 출력할 내용 선택
+		if(result > 0) {
+			System.out.println("\n" + userId + " 사용자가 등록되었습니다.\n");
+		} else {
+			System.out.println("\n***등록 실패***\n");
+		}
+		
+	}
+	
+	/**
+	 * 2. User 전체 조회 관련 View (SELECT)
+	 * @throws Exception 
+	 */
+	private void selectAll() throws Exception {
+		
+		System.out.println("\n=== 2. User 전체 조회 ===\n");
+		
+		// 서비스 호출(SELECT) 후 결과(List<User>) 반환 받기
+		List<User> userList = service.selectAll();
+		
+		// 결과에 따라 처리하기
+		
+		// 조회 결과가 없을 경우
+		
+		// 있을 경우
+		
+		if(userList.isEmpty()) { // userList가 비어있다면
+			System.out.println("\n*** 조회 결과가 없습니다 ***\n");
+			return;
+		}
+		// 있을 경우 향상된 for문 이용해서
+		// userList 에 있는 User 객체 출력
+		
+		for(User user : userList) {
+			System.out.println(user);
+		}
+		
+		
+		
+	}
+	
+	/** 
+	 * 3. User 중 이름에 검색어가 포함된 회원 조회
+	 */
+	private void selectName() throws Exception {
+		
+		System.out.println("\n=== 3. User 중 이름에 검색어가 포함된 회원 조회 ===\n");
+		
+		System.out.print("검색어 입력 : ");
+		String keyword = sc.next();
+		
+		// 서비스 호출 후 결과 반환 받기
+		List<User> searchList = service.selectName(keyword);
+		
+		if(searchList.isEmpty()) {
+			System.out.println("검색 결과 없음");
+			return;
+		}
+		
+		for(User user : searchList) {
+			System.out.println(user);
+		}
+			
+		
+	}
+	/**
+	 * 4. USER_NO를 입력 받아 일치하는 User 조회
+	 */
+	private void selectUser() throws Exception {
+		
+		System.out.println("\n=== 4. USER_NO를 입력 받아 일치하는 User 조회 ===\n");
+		
+		System.out.print("사용자 번호 입력 : ");
+		int input = sc.nextInt();
+		
+		// 사용자 번호 == PK == 중복이 있을 수 없다!
+		// == 일치하는 사용자가 있다면 딱 1행만 조회된다.
+		// -> 1행의 조회 결과를 담기 위해서는 User DTO 객체 1개 사용
+		User user = service.selectUser(input);
+		
+		// 조회결과가 없으면 null, 있으면 null 아님
+		if(user == null) {
+			System.out.println("USER_NO가 일치하는 회원 없음");
+			return;
+		}
+		System.out.println(user);
+		
+		
+	}
+		
 }
